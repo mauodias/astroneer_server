@@ -80,10 +80,16 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"]
 }
 
+resource "aws_key_pair" "server-key" {
+  key_name = var.key_pair_name
+  public_key = file(pathexpand(var.public_key_path))
+
+}
+
 resource "aws_instance" "server" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
-  key_name               = var.key_pair_name
+  key_name               = aws_key_pair.server-key.key_name
   vpc_security_group_ids = [aws_security_group.ingress.id]
   subnet_id              = aws_subnet.subnet.id
 
